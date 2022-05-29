@@ -9,30 +9,39 @@ namespace DllImport
 
         public static IntPtr FindWindowChildFromPoint(IntPtr hWnd, IntPtr hWndChildAfter, Win32Api.POINT p)
         {
-            List<IntPtr> list = Win32Funcs.GetWindowChildren(hWnd, hWndChildAfter);
-            foreach (IntPtr c in list)
+            IntPtr chWnd = hWndChildAfter;
+            do
             {
-                Win32Api.RECT rc = new Win32Api.RECT();
-                Win32Api.GetWindowRect(c, out rc);
-                if (rc.Left <= p.X && p.X <= rc.Right && rc.Top <= p.Y && p.Y <= rc.Bottom)
+                chWnd = Win32Api.FindWindowExA(hWnd, chWnd, null, null);
+                if (chWnd != IntPtr.Zero)
                 {
-                    return c;
+                    Win32Api.RECT rect = new Win32Api.RECT();
+                    Win32Api.GetWindowRect(chWnd, out rect);
+                    if (rect.Left <= p.X && p.X <= rect.Right && rect.Top <= p.Y && p.Y <= rect.Bottom)
+                    {
+                        return chWnd;
+                    }
                 }
-            }
+            } while (chWnd != IntPtr.Zero);
             return IntPtr.Zero;
         }
 
         public static IntPtr FindWindowChildFromClassNameContains(IntPtr hWnd, IntPtr hWndChildAfter, string className)
         {
-            List<IntPtr> list = Win32Funcs.GetWindowChildren(hWnd, hWndChildAfter);
-            foreach (IntPtr c in list)
+            IntPtr chWnd = hWndChildAfter;
+            do
             {
-                if (Win32Funcs.GetClassName(c, 256).Contains(className))
+                chWnd = Win32Api.FindWindowExA(hWnd, chWnd, null, null);
+                if (chWnd != IntPtr.Zero)
                 {
-                    return c;
+                    Win32Api.RECT rect = new Win32Api.RECT();
+                    Win32Api.GetWindowRect(chWnd, out rect);
+                    if (Win32Funcs.GetClassName(chWnd, 256).Contains(className))
+                    {
+                        return chWnd;
+                    }
                 }
-
-            }
+            } while (chWnd != IntPtr.Zero);
             return IntPtr.Zero;
         }
 
@@ -69,6 +78,13 @@ namespace DllImport
                 if (chWnd != IntPtr.Zero) list.Add(chWnd);
             } while (chWnd != IntPtr.Zero);
             return list;
+        }
+
+        public static string GetWindowModuleFileName(IntPtr hWnd, int cchFileNameMax)
+        {
+            StringBuilder sb = new StringBuilder(cchFileNameMax);
+            Win32Api.GetWindowModuleFileName(hWnd, sb, (uint)cchFileNameMax);
+            return sb.ToString();
         }
 
         public static List<IntPtr> GetWindowParents(IntPtr hWnd)

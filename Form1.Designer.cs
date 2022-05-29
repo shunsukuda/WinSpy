@@ -39,6 +39,7 @@
             this.ChildrenLabel = new System.Windows.Forms.Label();
             this.WindowRectLabel = new System.Windows.Forms.Label();
             this.ClientRectLabel = new System.Windows.Forms.Label();
+            this.ModuleFileNameLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBox1
@@ -126,11 +127,21 @@
             this.ClientRectLabel.TabIndex = 8;
             this.ClientRectLabel.Text = "ClientRect";
             // 
+            // ModuleFileNameLabel
+            // 
+            this.ModuleFileNameLabel.AutoSize = true;
+            this.ModuleFileNameLabel.Location = new System.Drawing.Point(12, 237);
+            this.ModuleFileNameLabel.Name = "ModuleFileNameLabel";
+            this.ModuleFileNameLabel.Size = new System.Drawing.Size(97, 15);
+            this.ModuleFileNameLabel.TabIndex = 9;
+            this.ModuleFileNameLabel.Text = "ModuleFileName";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.ModuleFileNameLabel);
             this.Controls.Add(this.ClientRectLabel);
             this.Controls.Add(this.WindowRectLabel);
             this.Controls.Add(this.ChildrenLabel);
@@ -160,5 +171,6 @@
         private Label ChildrenLabel;
         private Label WindowRectLabel;
         private Label ClientRectLabel;
+        private Label ModuleFileNameLabel;
     }
 }

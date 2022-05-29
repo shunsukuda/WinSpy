@@ -7,6 +7,9 @@ namespace WinSpy
     {
         private Win32Api.POINT pos;
         private IntPtr hwnd;
+        private Win32Api.RECT rect;
+        private List<IntPtr> parents;
+        private List<IntPtr> children;
 
         public Form1()
         {
@@ -35,27 +38,27 @@ namespace WinSpy
             return string.Format("WindowText={0}", Win32Funcs.GetWindowText(hwnd));
         }
 
-        private string getParents(IntPtr hwnd)
+        private string getParents(IntPtr hwnd, ref List<IntPtr> parents)
         {
             string s = "";
-            List<IntPtr> list = Win32Funcs.GetWindowParents(hwnd);
-            foreach (IntPtr p in list) s += "/" + p.ToString(); 
+            parents = Win32Funcs.GetWindowParents(hwnd);
+            foreach (IntPtr p in parents) s += "/" + p.ToString(); 
             return string.Format("Parents={0}", s);
         }
 
-        private string getChildren(IntPtr hwnd)
+        private string getChildren(IntPtr hwnd, ref List<IntPtr> children)
         {
             string s = "";
-            List<IntPtr> list = Win32Funcs.GetWindowChildren(hwnd, IntPtr.Zero);
-            foreach (IntPtr p in list) s +=  p.ToString() + " ";
+            children = Win32Funcs.GetWindowChildren(hwnd, IntPtr.Zero);
+            foreach (IntPtr p in children) s +=  p.ToString() + " ";
             return string.Format("Children={0}", s);
         }
 
-        private string getWindowRect(IntPtr hwnd)
+        private string getWindowRect(IntPtr hwnd, ref Win32Api.RECT rect)
         {
-            Win32Api.RECT rc = new Win32Api.RECT();
-            Win32Api.GetWindowRect(hwnd, out rc);
-            return string.Format("WindowRect={0}", rc.ToString());
+            rect = new Win32Api.RECT();
+            Win32Api.GetWindowRect(hwnd, out rect);
+            return string.Format("WindowRect={0}", rect.ToString());
         }
 
         private string getClientRect(IntPtr hwnd)
@@ -65,16 +68,31 @@ namespace WinSpy
             return string.Format("ClientRect={0}", rc.ToString());
         }
 
+        private string getModuleFileName(IntPtr hwnd)
+        {
+            return string.Format("ModuleFileName={0}", Win32Funcs.GetWindowModuleFileName(hwnd,256));
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             this.PosLabel.Text = getPos();
             this.HandlerLabel.Text = getHandler(ref this.hwnd);
             this.ClassNameLabel.Text = getClassName(this.hwnd);
             this.WindowTextLabel.Text = getWindowText(this.hwnd);
-            this.ParentsLabel.Text = getParents(this.hwnd);
-            this.ChildrenLabel.Text = getChildren(this.hwnd);
-            this.WindowRectLabel.Text = getWindowRect(this.hwnd);
+            this.ParentsLabel.Text = getParents(this.hwnd, ref this.parents);
+            this.ChildrenLabel.Text = getChildren(this.hwnd, ref this.children);
+            this.WindowRectLabel.Text = getWindowRect(this.hwnd, ref this.rect);
             this.ClientRectLabel.Text = getClientRect(this.hwnd);
+            this.ModuleFileNameLabel.Text = getModuleFileName(this.hwnd);
+            this.textBox1.Text = "";
+            if (this.parents.Count != 0)
+            {
+                foreach (IntPtr c in Win32Funcs.GetWindowChildren(this.parents[0], IntPtr.Zero))
+                {
+                    IntPtr chwnd = Win32Funcs.FindWindowChildFromPoint(this.parents[0], IntPtr.Zero, this.pos);
+                    this.textBox1.Text += string.Format("{0} ", c == chwnd);
+                }
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)

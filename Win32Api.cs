@@ -181,7 +181,7 @@ public class Win32Api
         /// </summary>
     }
 
-    public enum HWND :int
+    public enum HWND : int
     {
         /// <summary>
         /// Places the window at the bottom of the Z order. If the hWnd parameter identifies a topmost window, 
@@ -203,6 +203,62 @@ public class Win32Api
         TOPMOST = -1,
     }
 
+    /// <summary>
+    /// ShowWindow
+    /// </summary>
+    public enum SW : int
+    {
+        /// <summary>
+        /// Hides the window and activates another window.
+        /// </summary>
+        HIDE = 0,
+        /// <summary>
+        /// Activates and displays a window. If the window is minimized or maximized, the system restores it to its original size and position. 
+        /// An application should specify this flag when displaying the window for the first time.
+        /// </summary>
+        SHOWNORMAL = 1,
+        /// <summary>
+        /// Activates the window and displays it as a minimized window.
+        /// </summary>
+        SHOWMINIMIZED = 2,
+        /// <summary>
+        /// Activates the window and displays it as a maximized window.
+        /// </summary>
+        SHOWMAXIMIZED = 3,
+        /// <summary>
+        /// Displays a window in its most recent size and position. This value is similar to SW_SHOWNORMAL, except that the window is not activated.
+        /// </summary>
+        SHOWNOACTIVATE = 4,
+        /// <summary>
+        /// Activates the window and displays it in its current size and position.
+        /// </summary>
+        SHOW = 5,
+        /// <summary>
+        /// Minimizes the specified window and activates the next top-level window in the Z order.
+        /// </summary>
+        MINIMIZE = 6,
+        /// <summary>
+        /// Displays the window as a minimized window. This value is similar to SW_SHOWMINIMIZED, except the window is not activated.
+        /// </summary>
+        SHOWMINNOACTIVE = 7,
+        /// <summary>
+        /// Displays the window in its current size and position. This value is similar to SW_SHOW, except that the window is not activated.
+        /// </summary>
+        SHOWNA = 8,
+        /// <summary>
+        /// Activates and displays the window. If the window is minimized or maximized, the system restores it to its original size and position. 
+        /// An application should specify this flag when restoring a minimized window.
+        /// </summary>
+        RESTORE = 9,
+        /// <summary>
+        /// Sets the show state based on the SW_ value specified in the STARTUPINFO structure passed to the CreateProcess function by the program that started the application.
+        /// </summary>
+        SHOWDEFAULT = 10,
+        /// <summary>
+        /// Minimizes a window, even if the thread that owns the window is not responding. This flag should only be used when minimizing windows from a different thread.
+        /// </summary>
+        FORCEMINIMIZE = 11,
+    }
 
     /// <summary>
     /// SetWindowPos
@@ -1052,6 +1108,27 @@ public class Win32Api
     [DllImport("kernel32.dll")]
     public static extern uint GetTickCount();
 
+    [DllImport("kernel32.dll")]
+    public static extern uint GetPrivateProfileInt(
+        string lpAppName, string lpKeyName, int nDefault, string lpFileName);
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetPrivateProfileSection(
+        string lpAppName, IntPtr lpszReturnBuffer, uint nSize, string lpFileName);
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetPrivateProfileSectionNames(
+        IntPtr lpszReturnBuffer, uint nSize, string lpFileName);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    public static extern uint GetPrivateProfileString(
+        string lpAppName,
+        string lpKeyName,
+        string lpDefault,
+        StringBuilder lpReturnedString,
+        uint nSize,
+        string lpFileName);
+
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
 
@@ -1061,6 +1138,15 @@ public class Win32Api
     [DllImport("kernel32.dll")]
     public static extern void Sleep(uint dwMilliseconds);
 
+    [DllImport("kernel32.dll")]
+    public static extern bool WritePrivateProfileSectionA(
+        string lpAppName, string lpString, string lpFileName);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool WritePrivateProfileStringA(
+        string lpAppName, string lpKeyName, string lpString, string lpFileName);
+
     // user32.dll
     [DllImport("user32.dll")]
     static extern IntPtr ChildWindowFromPoint(IntPtr hWndParent, POINT pt, uint uFlags);
@@ -1068,11 +1154,19 @@ public class Win32Api
     [DllImport("user32.dll")]
     public static extern IntPtr ChildWindowFromPointEx(IntPtr hWndParent, POINT pt, uint uFlags);
 
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
+
+
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr FindWindowA(string lpClassName, string lpWindowName);
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr FindWindowExA(IntPtr parentHandle, IntPtr hWndChildAfter, string className, string windowTitle);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, SW nCmdShow);
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetActiveWindow();
@@ -1115,8 +1209,8 @@ public class Win32Api
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
 
     [DllImport("user32.dll", EntryPoint ="keybd_event")]
-    static extern void KeyboardEvent(byte bVk, byte bScan, uint dwFlags,
-   UIntPtr dwExtraInfo);
+    public static extern void KeyboardEvent(
+        byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     [DllImport("user32.dll", EntryPoint = "mouse_event")]
     public static extern void MouseEvent(
